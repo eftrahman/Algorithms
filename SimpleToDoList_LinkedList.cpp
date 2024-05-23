@@ -1,6 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <string>
-#include <limits> // For std::numeric_limits
+#include <limits>
 
 using namespace std;
 
@@ -88,10 +89,43 @@ void clearScreen() {
     #endif
 }
 
+// Function to load tasks from a file
+void loadTasks(Node*& head, const string& filename) {
+    ifstream file(filename);
+    if (file.is_open()) {
+        string task;
+        while (getline(file, task)) {
+            addTask(head, task);
+        }
+        file.close();
+    } else {
+        cout << "Unable to open file for reading: " << filename << endl;
+    }
+}
+
+// Function to save tasks to a file
+void saveTasks(Node* head, const string& filename) {
+    ofstream file(filename);
+    if (file.is_open()) {
+        Node* temp = head;
+        while (temp != nullptr) {
+            file << temp->task << endl;
+            temp = temp->next;
+        }
+        file.close();
+    } else {
+        cout << "Unable to open file for writing: " << filename << endl;
+    }
+}
+
 int main() {
     Node* head = nullptr;
     int choice, position;
     string task;
+    const string filename = "todo_list.txt";
+
+    // Load tasks from file
+    loadTasks(head, filename);
 
     do {
         clearScreen();
@@ -138,20 +172,11 @@ int main() {
         }
     } while (choice != 4);
 
+    // Save tasks to file
+    saveTasks(head, filename);
+
     // Clean up memory
     deleteList(head);
 
     return 0;
 }
-/*
-Node Structure: A struct Node representing each task in the to-do list. Each node contains a string task and a pointer next to the next node.
-addTask Function: Adds a new task to the end of the list.
-viewTasks Function: Displays all tasks in the to-do list.
-deleteTask Function: Deletes a task by its position in the list.
-deleteList Function: Frees the memory allocated for the list nodes.
-main Function: Provides a menu-driven interface for the user to interact with the to-do list manager.
-
-Input Handling: Used cin.ignore() with numeric_limits<streamsize>::max() to clear the input buffer after reading an integer choice. This ensures that the next input operation works correctly.
-Clear Screen: Added the clearScreen() function to clear the screen. It uses system("cls") for Windows and system("clear") for other systems.
-User Prompts: Added prompts to press Enter to continue after viewing tasks and deleting tasks. This allows the user to see the output before the screen is cleared.
-*/
